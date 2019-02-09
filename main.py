@@ -6,8 +6,6 @@ from random import randint
 client = discord.Client()
 
 mode = 0
-player = None
-voice = None
 
 #runs when started
 @client.event
@@ -15,30 +13,27 @@ async def on_ready():
     print("I'm in")
     print(client.user)
 
+#runs when a message was sent
 @client.event
 async def on_message(message):
-        
+    global mode
+    
+    #example message sorter
     if message.content == "/lt mode sitcom":
+      #changes a global variable if this message
       mode = 1
     elif message.content == "/lt mode 0":
+      #changes a global variable if this message
       mode = 0
     elif mode == 1 and message.author.name != "Laugh Track":
+      #sends a message here
       await client.send_message(message.channel,'\*laugh track\*')
-      if player.is_done():
-        player = voice.create_ffmpeg_player(random_laugh())
-        player.start()
     elif message.content == "/lt":
+      #sends a message here
       await client.send_message(message.channel,'\*laugh track\*')
-      if player.is_done():
-        player = voice.create_ffmpeg_player(random_laugh())
-        player.start()
     elif message.content == "/It":
+      #sends a message here
       await client.send_message(message.channel, 'its lowercase l, not an uppercase i')
 
-laughs = 5
 
-def random_laugh():
-   return 'laugh'+str(randint(1,laughs))+'.mp3'
-
-
-client.run('')
+client.run('#discord-bot-token-replace')
