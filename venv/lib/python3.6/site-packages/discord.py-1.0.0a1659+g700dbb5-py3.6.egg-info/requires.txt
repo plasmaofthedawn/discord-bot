@@ -1,0 +1,10 @@
+aiohttp<3.5.0,>=3.3.0
+websockets<7.0,>=6.0
+
+[docs]
+sphinx==1.7.4
+sphinxcontrib-asyncio
+sphinxcontrib-websupport
+
+[voice]
+PyNaCl==1.2.1
