@@ -1,5 +1,3 @@
 # discord-bot
 
-discord bot to do something.
-
-i'm not sure yet, but something
+discord bot to help handle differing time zones throughout the AniHolo project
