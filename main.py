@@ -9,26 +9,14 @@ mode = 0
 player = None
 voice = None
 
+#runs when started
 @client.event
 async def on_ready():
-    global player
-    global voice
     print("I'm in")
     print(client.user)
-    for i in client.servers:
-      for j in i.channels:
-        if j.name == "laugh":
-          channel = j
-          break
-      voice = await client.join_voice_channel(channel)
-      player = voice.create_ffmpeg_player(random_laugh())
-      player.start()
 
 @client.event
 async def on_message(message):
-    global mode
-    global player
-    global voice
         
     if message.content == "/lt mode sitcom":
       mode = 1
@@ -53,4 +41,4 @@ def random_laugh():
    return 'laugh'+str(randint(1,laughs))+'.mp3'
 
 
-client.run('NDk0MjgzNDA3NjQ4MzU4NDMw.DoxTGA.HpHRyOI0-hNobeMGI4N1KD5lypE')
+client.run('')
