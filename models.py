@@ -1,3 +1,15 @@
+DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+
+def readable_time(time):
+    hour, minute = str(time).split('.')
+
+    minute = str(int(minute)*.6).split('.')[0]
+
+    if len(minute) == 1:
+        minute += '0'
+
+    return hour + ":" + minute
+
 
 class User:
 
@@ -25,7 +37,8 @@ class Interval:
         """
         :param _id: int
             The id of the interval
-        :param day: int
+        :param start_day: int
+        :param end_day: int
         :param start_hour: double
         :param end_hour: double
         """
@@ -36,4 +49,5 @@ class Interval:
         self.end_hour = end_hour
 
     def __str__(self):
-        return f"{self.day} {str(self.start_hour).rjust(2, '0')}:00 - {str(self.end_hour).rjust(2, '0')}:00"
+        return f"{DAYS[self.start_day]} {readable_time(self.start_hour)} - {DAYS[self.end_day]} {readable_time(self.end_hour)}"
+
