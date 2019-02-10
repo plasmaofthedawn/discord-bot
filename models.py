@@ -4,7 +4,7 @@ class User:
     def __init__(self, discord_id, timezone, intervals=list()):
         """
         :param discord_id: string
-        :param timezone: enum(TIMEZONES from timezone.py)
+        :param timezone: double
         :param intervals: list(Interval)
         """
         self.discord_id = discord_id
@@ -15,22 +15,23 @@ class User:
         intervals = '\n\t'.join([str(i) for i in self.intervals])
 
         return (f"\nDiscord ID: {self.discord_id}"
-                f"\nTimezone: {self.timezone}"
+                f"\nTimezone: UTC{self.timezone}"
                 f"\nIntervals:\n\t{intervals}")
 
 
 class Interval:
 
-    def __init__(self, _id, day, start_hour, end_hour):
+    def __init__(self, _id, start_day, end_day, start_hour, end_hour):
         """
         :param _id: int
             The id of the interval
-        :param day: enum(DAYS from timezone.py)
-        :param start_hour: int
-        :param end_hour: int
+        :param day: int
+        :param start_hour: double
+        :param end_hour: double
         """
         self._id = _id
-        self.day = day
+        self.start_day = start_day
+        self.end_day = end_day
         self.start_hour = start_hour
         self.end_hour = end_hour
 
