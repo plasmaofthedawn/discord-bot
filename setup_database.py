@@ -26,7 +26,7 @@ def create_tables():
 
     cursor.execute("""CREATE TABLE intervals (
                             id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                            user_id INTEGER,
+                            user_id    INTEGER,
                             day        INTEGER,
                             start_hour INTEGER,
                             end_hour   INTEGER,
