@@ -17,7 +17,7 @@ except:
 #create the tables
 cursor.execute('CREATE TABLE users ('
                'discordId INTEGER,'
-               'timeZone INTEGER)')
+               'timezone INTEGER)')
 
 cursor.execute('CREATE TABLE interval ('
                'id INTEGER'
@@ -25,5 +25,5 @@ cursor.execute('CREATE TABLE interval ('
                'startDay INTEGER'
                'startHour DOUBLE'
                'endDay INTEGER'
-               'endHOUR DOUBLE)'
+               'endHour DOUBLE)'
                )
