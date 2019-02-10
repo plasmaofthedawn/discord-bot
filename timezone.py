@@ -1,9 +1,12 @@
 import re
 
-#dictionary of timezone abbreviations
+# dictionary of timezone abbreviations
 timezone_abbreviations = {
 
 }
+
+DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+TIMEZONES = ["UTC+0", "UTC+1", "UTC+2", "UTC+3"]
 
 #parses the timezone through inp,
 def parse_timezone(inp):
