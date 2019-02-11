@@ -13,11 +13,11 @@ with open('config.json', 'r') as read_file:
 # add each command as a static method to this class
 class commands:
     @staticmethod
-    async def test(params, channel):
+    async def test(params, message):
         if params:
-            await channel.send('hello, {}!'.format(params[1]))
+            await message.channel.send('hello, {}!'.format(params[1]))
         else:
-            await channel.send('hello, world!')
+            await message.channel.send('hello, world!')
 
 @client.event
 async def on_message(message):
@@ -29,7 +29,7 @@ async def on_message(message):
         if len(content) > 1:
             params = content[1:]
 
-        await getattr(commands, command)(params, message.channel)
+        await getattr(commands, command)(params, message)
 
 
 @client.event
