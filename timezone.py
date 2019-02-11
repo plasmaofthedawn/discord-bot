@@ -50,7 +50,7 @@ TIMEZONES = ["UTC+0", "UTC+1", "UTC+2", "UTC+3"]
 def parse_timezone(inp):
     # search for "UTC" or "GMT" plus an additional but optional character and then numbers,
     # and then an optional colon and more numbers
-    ret = re.search(r'((UTC)|(GMT))(?P<sign>[+-])(?P<first>\d+)(:(?P<second>\d+))?',inp)
+    ret = re.search(r'((UTC)|(GMT))(?P<sign>[+-])(?P<first>\d+)(:(?P<second>\d+))?',inp,re.IGNORECASE)
     #if it it exists
     if ret:
         sign = 1
@@ -67,7 +67,7 @@ def parse_timezone(inp):
     #search for it in our timezone_abrreviations dict
     try:
         #return the found value if found
-        return timezone_abbreviations[inp]
+        return timezone_abbreviations[inp.upper()]
     except KeyError:
         #otherwise, return false
         return False
