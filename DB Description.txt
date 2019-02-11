@@ -1,15 +1,16 @@
 We can make it simple:
 
 User:
-    DiscordID 
-    Timezone (enum)
+    discordId 
+    timezone <- no enum, integer representing difference from UTC
 
 Interval:
-    ID
-    UserID (one to many)
-    Day (enum)
-    StartHour
-    EndHour
+    id
+    userId (one to many)
+    startDay <- no enum, integer representing day (0 = Sun, 1 = Mon, 2 = Tue)
+    startHour
+    endDay
+    endHour
 
 
 This way a user can have whatever intervals he/she chooses:
