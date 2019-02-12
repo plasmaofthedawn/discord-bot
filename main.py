@@ -1,6 +1,7 @@
 import json
 import discord
 import asyncio
+from texts import *
 import database
 import timezone
 
@@ -20,6 +21,9 @@ class commands:
             await message.channel.send('hello, {}!'.format(params[1]))
         else:
             await message.channel.send('hello, world!')
+    @staticmethod
+    async def help(params, message):
+        await message.channel.send(help_txt)
 
     @staticmethod
     async def set_time_zn(params, message):
