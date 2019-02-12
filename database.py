@@ -57,12 +57,16 @@ def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
         return False
 
 
-
 def get_user(discord_id):
     """
-    :return: User (from models.py)
+    :return: User (from models.py) or false if no user found
     """
-    time_zone = cursor.execute("SELECT timezone from users WHERE discord_id = ?", (discord_id,)).fetchone()[0]
+    try:
+        time_zone = cursor.execute("SELECT timezone from users WHERE discord_id = ?", (discord_id,)).fetchone()[0]
+    except TypeError:
+        # if no user is found then fetchone[0] would return None, which would cause a typeerror
+        return False
+
     db_intervals = cursor.execute("SELECT id, start_day, end_day, start_hour, end_hour FROM intervals WHERE user_id = ?",
                                   (discord_id,)).fetchall()
 
@@ -72,11 +76,22 @@ def get_user(discord_id):
     return User(discord_id, time_zone, intervals)
 
 
+def update_user(discord_id, timezone):
+    try:
+        cursor.execute('UPDATE users SET timezone=? WHERE discord_id=?',(timezone,discord_id))
+
+        db.commit()
+
+        return True
+
+    except sqlite3.DatabaseError:
+        return False
+
+
 if __name__ == '__main__':
-    remove_tables()
-    create_tables()
-    add_user(1, 2)
-    add_interval(1, 1, 1, 1.75, 5.5)
-    add_interval(1, 1, 1, 6.0, 21.0)
-    print(get_user(1))
+    #remove_tables()
+    #create_tables()
+    print(get_user(234387706463911939))
+
+
 
