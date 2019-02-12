@@ -26,9 +26,8 @@ class User:
     def __str__(self):
         intervals = '\n\t'.join([str(i) for i in self.intervals])
 
-        return (f"\nDiscord ID: {self.discord_id}"
-                f"\nTimezone: UTC{self.timezone}"
-                f"\nIntervals:\n\t{intervals}")
+        return (f"\nTimezone: UTC{self.timezone}"
+                f"\nIntervals (UTC Adjusted):\n\t{intervals}")
 
 
 class Interval:
@@ -49,5 +48,6 @@ class Interval:
         self.end_hour = end_hour
 
     def __str__(self):
+        print(self.start_day)
         return f"{DAYS[self.start_day]} {readable_time(self.start_hour)} - {DAYS[self.end_day]} {readable_time(self.end_hour)}"
 
