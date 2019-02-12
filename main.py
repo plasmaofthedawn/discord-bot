@@ -1,9 +1,9 @@
 import json
 import discord
 import asyncio
-from texts import *
 import database
 import timezone
+from texts import *
 
 startup = True
 client = discord.Client()
@@ -21,9 +21,6 @@ class commands:
             await message.channel.send('hello, {}!'.format(params[1]))
         else:
             await message.channel.send('hello, world!')
-    @staticmethod
-    async def help(params, message):
-        await message.channel.send(help_txt)
 
     @staticmethod
     async def set_time_zn(params, message):
@@ -92,6 +89,10 @@ class commands:
     async def show_schedule(params, message):
         await message.channel.send("Schedule for %s:" % message.author.name)
         await message.channel.send(database.get_user(message.author.id))
+    
+    @staticmethod
+    async def help(params, message):
+        await message.channel.send(help_txt)
 
 
 @client.event
