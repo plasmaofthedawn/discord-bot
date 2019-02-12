@@ -1,6 +1,7 @@
 import json
 import discord
 import asyncio
+from texts import *
 
 startup = True
 client = discord.Client()
@@ -18,6 +19,9 @@ class commands:
             await message.channel.send('hello, {}!'.format(params[1]))
         else:
             await message.channel.send('hello, world!')
+    @staticmethod
+    async def help(params, message):
+        await message.channel.send(help_txt)
 
 @client.event
 async def on_message(message):
