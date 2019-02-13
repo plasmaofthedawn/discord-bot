@@ -47,8 +47,8 @@ def add_user(discord_id, timezone):
 
 def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
     try:
-        cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) VALUES (?, ?, ?, ?, ?)',
-                       (discord_id, start_day, end_day, start_hour, end_hour))
+        cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) '
+                       'VALUES (?, ?, ?, ?, ?)', (discord_id, start_day, end_day, start_hour, end_hour))
         db.commit()
 
         return True
@@ -67,8 +67,8 @@ def get_user(discord_id):
         # if no user is found then fetchone[0] would return None, which would cause a typeerror
         return False
 
-    db_intervals = cursor.execute("SELECT id, start_day, end_day, start_hour, end_hour FROM intervals WHERE user_id = ?",
-                                  (discord_id,)).fetchall()
+    db_intervals = cursor.execute("SELECT id, start_day, end_day, start_hour, end_hour FROM "
+                                  "intervals WHERE user_id = ?", (discord_id,)).fetchall()
 
     # put interval values into interval model
     intervals = [Interval(i[0], i[1], i[2], i[3], i[4]) for i in db_intervals]
@@ -78,7 +78,7 @@ def get_user(discord_id):
 
 def update_user(discord_id, timezone):
     try:
-        cursor.execute('UPDATE users SET timezone=? WHERE discord_id=?',(timezone,discord_id))
+        cursor.execute('UPDATE users SET timezone=? WHERE discord_id=?', (timezone, discord_id))
 
         db.commit()
 
@@ -87,13 +87,11 @@ def update_user(discord_id, timezone):
     except sqlite3.DatabaseError:
         return False
 
-    
-def delete_interval(id):
+
+def delete_interval(interval_id):
     try:
 
-        print(id)
-
-        cursor.execute('DELETE FROM intervals WHERE id=?', (id,))
+        cursor.execute('DELETE FROM intervals WHERE id=?', (interval_id,))
 
         db.commit()
 
@@ -103,9 +101,6 @@ def delete_interval(id):
         return False
 
 if __name__ == '__main__':
-    #remove_tables()
-    #create_tables()
+    remove_tables()
+    create_tables()
     print(get_user(234387706463911939))
-
-
-
