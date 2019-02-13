@@ -87,6 +87,20 @@ def update_user(discord_id, timezone):
     except sqlite3.DatabaseError:
         return False
 
+    
+def delete_interval(id):
+    try:
+
+        print(id)
+
+        cursor.execute('DELETE FROM intervals WHERE id=?', (id,))
+
+        db.commit()
+
+        return True
+
+    except sqlite3.DatabaseError:
+        return False
 
 if __name__ == '__main__':
     #remove_tables()
