@@ -95,6 +95,57 @@ class commands:
         await message.channel.send(database.get_user(message.author.id))
     
     @staticmethod
+    async def show_schedule(params, message):
+        global loaded_intervals
+        global owner
+
+        owner = 0
+        loaded_intervals = []
+
+        user = database.get_user(message.author.id)
+        if not user or user.intervals == []:
+            await message.channel.send('No intervals found for %s.' % message.author.name)
+            return
+        else:
+            await message.channel.send("%s's timezone is UTC%d" % (message.author.name, user.timezone))
+            await message.channel.send("Intervals (UTC adjusted):")
+            text = ""
+            iterator = 0
+            owner = user.discord_id
+            for i in user.intervals:
+                text += "%d: %s\n" % (iterator, str(i))
+                loaded_intervals.append(i.get_id())
+                iterator += 1
+            await message.channel.send(text)
+            await message.channel.send("Use the left most number to delete the interval with !remove_interval")
+            print(loaded_intervals)
+
+    @staticmethod
+    async def remove_interval(params, message):
+        if params:
+            try:
+                params = int(params[0])
+            except ValueError:
+                await message.channel.send("The first argument should be a number.")
+            if message.author.id == owner:
+                try:
+                    if database.delete_interval(loaded_intervals[params]):
+                        await message.channel.send("Successfully deleted the interval with id %d" % params)
+                        return
+                    else:
+                        await message.channel.send("Something went wrong.")
+                        return
+                except IndexError:
+                    await message.channel.send("Too high of an index number.")
+            else:
+                await message.channel.send("Only the owner of the intervals can delete them.")
+                await message.channel.send("If you were trying to delete your own intervals run !show_schedule first.")
+                return
+        else:
+            await message.channel.send("Missing parameters.")
+            return
+    
+    @staticmethod
     async def upload_schedule(params, message):
         send = message.channel.send
         if(len(params) > 0):
