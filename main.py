@@ -225,7 +225,7 @@ def alter_timezone(start_day, start_hour, end_day, end_hour, tz):
 
 
 def convert_time(time_):
-    # output time as a double, with optional offset
+    # output time as a double
     is_t = 1
     time = time_
     if ":" not in time_:
