@@ -1,5 +1,6 @@
 DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 
+
 def readable_time(time):
     hour, minute = str(time).split('.')
 
@@ -49,5 +50,8 @@ class Interval:
 
     def __str__(self):
         print(self.start_day)
-        return f"{DAYS[self.start_day]} {readable_time(self.start_hour)} - {DAYS[self.end_day]} {readable_time(self.end_hour)}"
+        return f"{DAYS[self.start_day]} {readable_time(self.start_hour)} - " \
+               f"{DAYS[self.end_day]} {readable_time(self.end_hour)}"
 
+    def get_id(self):
+        return self._id
