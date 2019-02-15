@@ -38,7 +38,7 @@ class Commands:
                 tz = False
             if tz:
                 user = database.get_user(message.author.id)
-                if user:
+                if not user:
                     database.add_user(message.author.id, tz)
                     if tz > 0:
                         await message.channel.send(
