@@ -258,7 +258,7 @@ def convert_time(time_):
 
 
 def is_time(time):
-    return convert_time(time) is None
+    return convert_time(time) is not None
 
 
 def process(schedule, user):
