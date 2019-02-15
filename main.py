@@ -315,8 +315,9 @@ def process(schedule, user):
 async def attachmentToBytes(attachment):
     tmp = io.BytesIO(b"")
     await attachment.save(tmp)
-    return tmp.read()
+    ret = tmp.read()
     tmp.close()
+    return ret
 
 
 
