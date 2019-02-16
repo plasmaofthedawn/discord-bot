@@ -73,6 +73,7 @@ def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
             return False
 
 
+
 def get_user(discord_id):
     """
     :return: User (from models.py) or false if no user found
