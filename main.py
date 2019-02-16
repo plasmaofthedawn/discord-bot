@@ -16,6 +16,15 @@ loaded_intervals = []
 owner = 0
 
 
+rounding_warning = ("Keep in mind that your schedule will be trimmed if " +
+"it doesn't fit into increments of " + str(config["interval_block_size"]) +
+" minute(s)")
+
+# storage for loaded intervals
+loaded_intervals = []
+owner = 0
+
+
 # add each command as a static method to this class
 class Commands:
     @staticmethod
@@ -69,7 +78,7 @@ class Commands:
         if len(params) >= 3:
             if len(params) == 3:
                 params = [params[0], params[1], params[0], params[2]]
-
+            times = [convert_time(params[1]), convert_time(params[3])]
             tz = database.get_user(message.author.id)
             if not tz:
                 await message.channel.send("couldn't find your timezone in the database")
@@ -78,10 +87,10 @@ class Commands:
                 tz = tz.timezone
 
             try:
-                start_day, start_hour, end_day, end_hour = alter_timezone(int(params[0]), int(params[1]),
-                                                                          int(params[2]), int(params[3]), tz)
+                start_day, start_hour, end_day, end_hour = alter_timezone(int(params[0]), times[0],
+                                                                          int(params[2]), times[1], tz)
             except TypeError:
-                await message.channel.send("one of your inputs is not a number")
+                await message.channel.send("one of your inputs is not a time")
                 return
 
             database.add_interval(message.author.id, start_day, end_day, start_hour, end_hour)
@@ -89,8 +98,9 @@ class Commands:
             await message.channel.send("successfully created a new interval for %s." % message.author.name)
 
         else:
-            await message.channel.send('add_interval requires 3-4 inputs, '
-                                       '<start day> <start time> <end day>(if different) <end time>.')
+            await message.channel.send('\'add_interval\' requires 3-4 inputs, '
+                                       '<start day> <start time> <end day>(if different) <end time>.' +
+                                       " '0' being Sunday\n\n" + rounding_warning)
 
     @staticmethod
     async def show_schedule(params, message):
@@ -116,7 +126,6 @@ class Commands:
                 iterator += 1
             await message.channel.send(text)
             await message.channel.send("Use the left most number to delete the interval with !remove_interval")
-            print(loaded_intervals)
 
     @staticmethod
     async def remove_interval(params, message):
@@ -148,7 +157,7 @@ class Commands:
         send = message.channel.send
         if len(params) > 0:
             if params[0] == "help":
-                await send(upload_schedule_help)
+                await send(upload_schedule_help + "\n\n" + rounding_warning)
             elif params[0] == "example":
                 await send(upload_schedule_example)
         else:
@@ -156,7 +165,6 @@ class Commands:
                 await send("Please attach the file with your message")
             else:
                 user = database.get_user(message.author.id)
-                print(user)
                 if user != 0:
                     attached = message.attachments[0]
                     schedule = await attachment_to_bytes(attached)
@@ -233,7 +241,6 @@ def convert_time(time_):
             time = time[:-2] + ":00" + time[-2:]
         else:
             time = time + ":00"
-        print("ping")
     try:
         if time[-2:] == "pm":
             time = time[:-2]
@@ -267,7 +274,6 @@ def process(schedule, user):
     tmp = schedule.replace("\n\n", "\n").replace("\n\n", "\n")
     blocks = tmp.replace(" ", "").lower().split("}\n")
     blocks[-1] = blocks[-1].replace("\n}", "")
-    print(blocks)
     i = 0
     failed = 0
     entries = [[]]
@@ -342,8 +348,6 @@ def process(schedule, user):
                     else:
                         day_two = day
                     tmp = alter_timezone(day, entries[i][j][0], day_two, entries[i][j][1], tz)
-                    print((day, entries[i][j][0], day_two, entries[i][j][1], tz))
-                    print("toup")
                     database.add_interval(user.discord_id, tmp[0], tmp[2], tmp[1], tmp[3])
                 else:
                     # day_start, day_end
@@ -374,4 +378,5 @@ async def attachment_to_bytes(attachment):
     return ret
 
 
-client.run(config['token'])
+if(__name__ == "__main__"):
+    client.run(config['token'])

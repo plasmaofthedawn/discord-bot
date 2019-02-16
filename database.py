@@ -1,6 +1,8 @@
 import sqlite3
 from models import *
+from json import load
 
+config = load(open("config.json", 'r'))
 db = sqlite3.connect('database.db')
 cursor = db.cursor()
 
@@ -46,15 +48,30 @@ def add_user(discord_id, timezone):
 
 
 def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
-    try:
-        cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) '
-                       'VALUES (?, ?, ?, ?, ?)', (discord_id, start_day, end_day, start_hour, end_hour))
-        db.commit()
+    block_size = config["interval_block_size"]/60
+    numOfBlocks = start_hour//block_size
+    startHour = start_hour
+    startDay = start_day
+    if(start_hour > (numOfBlocks*block_size)):
+        startHour = (numOfBlocks+1)*block_size
+        if(startHour >= 24):
+            startDay += 1
+            startHour -= 24
+            if(startDay > 6):
+                startDay = 0
+    numOfBlocks = end_hour//block_size
+    endHour = numOfBlocks*block_size
+    if((startHour != endHour) | (startDay != end_day)):
+        try:
+            cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) '
+                           'VALUES (?, ?, ?, ?, ?)', (discord_id, startDay, end_day, startHour, endHour))
+            db.commit()
 
-        return True
+            return True
 
-    except sqlite3.DatabaseError:
-        return False
+        except sqlite3.DatabaseError:
+            return False
+
 
 
 def get_user(discord_id):
