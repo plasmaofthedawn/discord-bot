@@ -11,14 +11,9 @@ client = discord.Client()
 with open('config.json', 'r') as read_file:
     config = json.load(read_file)
 
-# storage for loaded intervals
-loaded_intervals = []
-owner = 0
-
-
 rounding_warning = ("Keep in mind that your schedule will be trimmed if " +
-"it doesn't fit into increments of " + str(config["interval_block_size"]) +
-" minute(s)")
+                    "it doesn't fit into increments of " + str(config["interval_block_size"]) +
+                    " minute(s)")
 
 # storage for loaded intervals
 loaded_intervals = []
@@ -176,6 +171,23 @@ class Commands:
                         await send("No errors detected while processing schedule")
                 else:
                     await send("Please set your time-zone before uploading")
+
+    @staticmethod
+    async def clear_schedule(prams, message):
+        # get user
+        user = database.get_user(message.author.id)
+        # make sure the user exists
+        if not user:
+            await message.channel.send("couldn't find your timezone in the database")
+            return
+        # loop through each interval
+        for i in user.intervals:
+            # poof it out of existence
+            database.delete_interval(i.get_id())
+        # let the user know
+        await message.channel.send("deleted all of %s's intervals" % message.author.name)
+            
+
 
 
 @client.event
