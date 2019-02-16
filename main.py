@@ -11,6 +11,10 @@ client = discord.Client()
 with open('config.json', 'r') as read_file:
     config = json.load(read_file)
 
+# storage for loaded intervals
+loaded_intervals = []
+owner = 0
+
 
 rounding_warning = ("Keep in mind that your schedule will be trimmed if " +
 "it doesn't fit into increments of " + str(config["interval_block_size"]) +
@@ -372,7 +376,6 @@ async def attachment_to_bytes(attachment):
     ret = tmp.read()
     tmp.close()
     return ret
-
 
 
 if(__name__ == "__main__"):
