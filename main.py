@@ -46,8 +46,8 @@ class Commands:
                 tz = timezone.parse_timezone(params[0])
             except TypeError:
                 tz = False
-            if type(tz) != bool:#check if it's a bool
-                #since the timezone could be "0"
+            if type(tz) != bool:# check if it's a bool
+                # since the timezone could be "0"
                 user = database.get_user(message.author.id)
                 if not user:
                     database.add_user(message.author.id, tz)
