@@ -49,18 +49,26 @@ def add_user(discord_id, timezone):
 
 def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
     block_size = config["interval_block_size"]/60
-    numOfBlocks = start_hour//block_size
+    #size of increments to schedule in, if the block_size is 60minutes,
+    #   and one inputs "10:30 to 12:40", the interval becomes "11:00 to 12:00"
+    
+    numOfBlocks = start_hour//block_size #number of blocks that fit into start_hour
     startHour = start_hour
     startDay = start_day
-    if(start_hour > (numOfBlocks*block_size)):
+    if(start_hour > (numOfBlocks*block_size)): #if start_hour doesn't fit
+        # into even block
         startHour = (numOfBlocks+1)*block_size
-        if(startHour >= 24):
+        if(startHour >= 24): #if startHour went over to the next day
             startDay += 1
             startHour -= 24
-            if(startDay > 6):
+            if(startDay > 6): #if startDay wrapped around end of the week
                 startDay = 0
-    numOfBlocks = end_hour//block_size
+    numOfBlocks = end_hour//block_size #number of blocks that fit into end_hour
     endHour = numOfBlocks*block_size
+    #setting endHour equal to the max that fits into blocks, this shaves
+    #   off the excess time(Ex: only 12 blocks of 60mins, fits into 12:30,
+    #   so the time would be equal to 12*60, or 12:00)
+    
     if((startHour != endHour) | (startDay != end_day)):
         try:
             cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) '
@@ -116,6 +124,11 @@ def delete_interval(interval_id):
 
     except sqlite3.DatabaseError:
         return False
+
+
+def export_all_intervals():
+    #export all intervals as a list
+    return cursor.execute("SELECT * FROM intervals").fetchall()
 
 if __name__ == '__main__':
     remove_tables()
