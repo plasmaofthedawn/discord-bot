@@ -12,14 +12,9 @@ client = discord.Client()
 with open('config.json', 'r') as read_file:
     config = json.load(read_file)
 
-# storage for loaded intervals
-loaded_intervals = []
-owner = 0
-
-
 rounding_warning = ("Keep in mind that your schedule will be trimmed if " +
-"it doesn't fit into increments of " + str(config["interval_block_size"]) +
-" minute(s)")
+                    "it doesn't fit into increments of " + str(config["interval_block_size"]) +
+                    " minute(s)")
 
 # storage for loaded intervals
 loaded_intervals = []
@@ -41,6 +36,12 @@ class Commands:
     
     @staticmethod
     async def set_time_zn(params, message):
+        # get old timezone
+        old_tz = database.get_user(message.author.id)
+        if old_tz:
+            old_intervals = old_tz.intervals
+            old_tz = old_tz.timezone
+
         if params:
             try:
                 tz = timezone.parse_timezone(params[0])
@@ -68,6 +69,22 @@ class Commands:
                         await message.channel.send(
                             'Timezone has been updated to UTC%d for %s.' % (tz, message.author.name))
                         return
+
+            # if previous timezone existed
+            if old_tz:
+                # calculate change in time_zones
+                tz_change = old_tz - tz
+                # go through each interval
+                for i in old_tz:
+                    # remove the old interval
+                    database.delete_interval(i.get_id())
+                    # get new interval
+                    new_interval = alter_timezone(i.start_day, i.start_hour, i.end_day, i.end_hour, tz_change)
+                    # add the new interval
+                    database.add_interval(message.author.id, new_interval[0], new_interval[2],
+                                          new_interval[1], new_interval[3])
+                await message.channel.send('updated all previous intervals')
+                return
             else:
                 await message.channel.send('%s is not a valid time zone.' % params[0])
                 return
@@ -152,7 +169,7 @@ class Commands:
         else:
             await message.channel.send("Missing parameters.")
             return
-    
+
     @staticmethod
     async def upload_schedule(params, message):
         send = message.channel.send
@@ -287,6 +304,21 @@ class Commands:
         await message.channel.send('You\'re already dead, ' +
         'and your next line is "Nani!?"')
 
+    @staticmethod
+    async def clear_schedule(prams, message):
+        # get user
+        user = database.get_user(message.author.id)
+        # make sure the user exists
+        if not user:
+            await message.channel.send("couldn't find your timezone in the database")
+            return
+        # loop through each interval
+        for i in user.intervals:
+            # poof it out of existence
+            database.delete_interval(i.get_id())
+        # let the user know
+        await message.channel.send("deleted all of %s's intervals" % message.author.name)
+
 
 class TerminateFunction(Exception):
     def __init__(self):
@@ -322,7 +354,7 @@ async def on_ready():
 def alter_timezone(start_day, start_hour, end_day, end_hour, tz):
     start_hour -= tz
     end_hour -= tz
-    
+
     if start_hour < 0:
         start_hour += 24
         start_day -= 1
@@ -358,12 +390,12 @@ def convert_time(time_):
     try:
         if time[-2:] == "pm":
             time = time[:-2]
-            time = str(int(time[:-3])+12) + time[-3:]
+            time = str(int(time[:-3]) + 12) + time[-3:]
         elif time[-2:] == "am":
             time = time[:-2]
             if int(time[:-3]) > 12:
                 is_t = 0
-        
+
         if time[-3] != ":":
             is_t = 0
         elif (int(time[:-3]) < 0) or (int(time[:-3]) > 24):
@@ -373,7 +405,7 @@ def convert_time(time_):
     except ValueError:
         is_t = 0
     if is_t == 1:
-        return int(time[:-3])+(int(time[-2:])/60)
+        return int(time[:-3]) + (int(time[-2:]) / 60)
     else:
         return None
 
@@ -389,7 +421,7 @@ def to_time(Float):
         return str(int(Float))
 
 def process(schedule, user):
-    days = ["sun", "mon", "tues", "wed", "thurs", "fri", "sat", "sunday", 
+    days = ["sun", "mon", "tues", "wed", "thurs", "fri", "sat", "sunday",
             "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
     tmp = schedule.replace("\n\n", "\n").replace("\n\n", "\n")
     blocks = tmp.replace(" ", "").lower().split("}\n")
@@ -476,7 +508,7 @@ def process(schedule, user):
                     while running:
                         tmp = alter_timezone(day, entries[i][j][0], day, entries[i][j][1], tz)
                         database.add_interval(user.discord_id, tmp[0], tmp[2], tmp[1], tmp[3])
-                        
+
                         if day == day_end:
                             running = 0
                         day += 1
@@ -498,5 +530,5 @@ async def attachment_to_bytes(attachment):
     return ret
 
 
-if(__name__ == "__main__"):
+if __name__ == "__main__":
     client.run(config['token'])
