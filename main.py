@@ -214,7 +214,7 @@ class Commands:
         if(nick and Id):
             await message.channel.send("Please choose either nick=1 or" +
             " id=1, not both.")
-            raise TerminateFunction()
+            return
         sep = ","
         raw = database.export_all_intervals()
         SBU = {} #sorted by user
@@ -319,10 +319,6 @@ class Commands:
         # let the user know
         await message.channel.send("deleted all of %s's intervals" % message.author.name)
 
-
-class TerminateFunction(Exception):
-    def __init__(self):
-        pass
 
 @client.event
 async def on_message(message):
