@@ -298,7 +298,7 @@ class Commands:
         await message.channel.send(file=tmp1)
         tmp.close()
         
-    
+    @staticmethod
     async def kill_me(paras, message):
         await message.channel.send('You\'re already dead, ' +
         'and your next line is "Nani!?"')
