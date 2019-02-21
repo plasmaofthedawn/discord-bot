@@ -4,8 +4,8 @@ from texts import *
 import database
 import timezone
 import io
-from random import shuffle
 from models import DAYS as days #*Days by FLOW starts playing*
+from random import shuffle, randint
 from random import shuffle, randint
 
 
@@ -86,21 +86,21 @@ class Commands:
                             'Timezone has been updated to UTC%d for %s.' % (tz, message.author.name))
                         return
 
-                # if previous timezone existed
-                if old_tz:
-                    # calculate change in time_zones
-                    tz_change = old_tz - tz
-                    # go through each interval
-                    for i in old_tz:
-                        # remove the old interval
-                        database.delete_interval(i.get_id())
-                        # get new interval
-                        new_interval = alter_timezone(i.start_day, i.start_hour, i.end_day, i.end_hour, tz_change)
-                        # add the new interval
-                        database.add_interval(message.author.id, new_interval[0], new_interval[2],
-                                              new_interval[1], new_interval[3])
-                    await message.channel.send('updated all previous intervals')
-                    return
+            # if previous timezone existed
+            if old_tz:
+                # calculate change in time_zones
+                tz_change = old_tz - tz
+                # go through each interval
+                for i in old_tz:
+                    # remove the old interval
+                    database.delete_interval(i.get_id())
+                    # get new interval
+                    new_interval = alter_timezone(i.start_day, i.start_hour, i.end_day, i.end_hour, tz_change)
+                    # add the new interval
+                    database.add_interval(message.author.id, new_interval[0], new_interval[2],
+                                          new_interval[1], new_interval[3])
+                await message.channel.send('updated all previous intervals')
+                return
             else:
                 await message.channel.send('%s is not a valid time zone.' % params[0])
                 return
@@ -328,7 +328,7 @@ class Commands:
     @staticmethod
     async def kill_me(paras, message):
         await message.channel.send('You\'re already dead, ' +
-        'and your next line is "Nani!?"')
+'and your next line is "Nani!?"')
 
     @staticmethod
     async def clear_schedule(prams, message):
@@ -465,7 +465,6 @@ class ballot_commands:
                 if(pending_ballots[i]["ID"] == ID):
                     matches = 1
                 i += 1
-
         ID = str(ID)
         if(len(ID) == 1):
             ID = "00" + ID
@@ -555,6 +554,7 @@ class ballot_commands:
         if(len(params) == 0):
             await send("'vote' requires 2 parameters, see 'help'")
             return
+
 
     @staticmethod
     async def get_ballot(params, message):
