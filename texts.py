@@ -26,8 +26,6 @@ Note: You can put your schedule in either 24hour format, 12 hours format, or a m
 
 upload_schedule_help = """upload_schedule > Upload a text file with your schedule, to see an example call "!upload_schedule example\""""
 
-new_ballot_help = """new_ballot "<prompt>" ["<option1>", ect..] write_in=<bool> (0 or 1) roles=["<role1>", ect..](roles to limit vote to, roles are listed as text, not meantions) svpc=<bool>(see votes pre-close) title=<title>(optional, title of ballot)"""
-
 upload_ballot_help = """Get an example of proper formating using 'upload_ballot example'
 
 Notes: This system doesn't detect every character for proper formating, so you may not get any error, which is why the info regarding a ballot is printed back for confirmation. If you want to include double quotes in any of your ballot items, simply use the escape character(\\")"""
@@ -41,7 +39,6 @@ vote <ballot noun or ID> <choosen options, separated by commas>(if writing in, p
 current_ballots          lists currently open ballots
 my_ballots          lists all of your ballots, open and closed
 closed_ballots          lists all closed ballots
-ballot_options <ballot noun or ID>    prints a list of all options for a ballot
 get_ballot <ballot noun or ID> <optional, 0 or 1 for layout>    prints all information for a ballot
 add_options <ballot noun or ID> [<option 1>, etc..]    adds option(s) to ballot
 allow_write_in <ballot noun or ID>    enables writing in, for a ballot

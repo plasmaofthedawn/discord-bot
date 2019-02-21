@@ -219,6 +219,114 @@ class Commands:
                     await send("Please set your time-zone before uploading")
 
     @staticmethod
+    async def export_csv(params, message):
+        global days
+        nick = 0 #whether or not to display nickname
+        Id = 0 #whether or not to display user's discriminator
+        i = 0
+        while(i < len(params)):
+            if(params[i] == "nick=1"):
+                nick = 1
+            elif(params[i] == "id=1"):
+                Id = 1
+            elif(params[i] == "help"):
+                await message.channel.send(export_csv_help)
+                raise TerminateFunction()
+            i += 1
+        if(nick and Id):
+            await message.channel.send("Please choose either nick=1 or" +
+            " id=1, not both.")
+            return
+        sep = ","
+        raw = database.export_all_intervals()
+        SBU = {} #sorted by user
+        i = 0
+        while(i < len(raw)):
+            try:
+                SBU[raw[i][1]]
+            except KeyError:
+                SBU[raw[i][1]] = []
+            startD = raw[i][2]
+            endD = raw[i][3]
+            startT = raw[i][4] + (startD*24)
+            endT = raw[i][5] + (endD*24)
+            if(endT < startT):
+                SBU[raw[i][1]].append((0, endT))
+                endT = 7*24
+            SBU[raw[i][1]].append((startT, endT))
+            i += 1
+        del raw
+        users = list(SBU.keys())
+        blockSize = config["interval_block_size"]#size of incrememnt blocks
+        numOfBlocks = (7*24*60)/blockSize#number of blocks in a week
+        blocksInDay = (24*60)/blockSize#number of blocks in a day
+        i = 0
+        while(i < len(users)):
+            I = 0
+            tmp = {} #list of each interval for each day
+            while(I < 7):
+                j = 0
+                tmp[I] = {}
+                while(j < blocksInDay):
+                    tmp[I][j] = 0
+                    j += 1
+                I += 1
+            I = 0
+            tmp0 = SBU[users[i]] #list of intervals for current user
+            while(I < len(tmp0)):
+                j = 0
+                while(j < numOfBlocks):
+                    if(tmp0[I][0] <= ((blockSize*j)/60)):
+                        if(tmp0[I][1] >= ((blockSize*(j+1))/60)):
+                            day_ = ((blockSize*j)/60)//24
+                            tmp[day_][j-(blocksInDay*day_)] = 1
+                    j += 1
+                I += 1
+            SBU[users[i]] = tmp
+            i += 1
+        
+        intervals = "" #time slots to be displayed at the top of the .csv file
+        i = 0
+        while(i < blocksInDay):
+            intervals = (intervals + "," + to_time((i*blockSize)/60) + "-" +
+            to_time(((i+1)*blockSize)/60))
+            i += 1
+        
+        File = "" #string to be dumped into .csv file
+        i = 0
+        while(i < 7): #adding each user's intervals to a csv
+            File = File + "\n\n" + days[i] + intervals + "\n\n"
+            #intervals begins with a comma, if you were wondering why I dind't
+            #   add one
+            I = 0
+            while(I < len(users)):
+                j = 0
+                user = await client.get_user_info(users[I])
+                if(user != None):
+                    if(nick):
+                        name = user.display_name
+                    elif(Id):
+                        name = user.name + "#" + user.discriminator
+                    else:
+                        name = user.name
+                    File = File + name + ","
+                    while(j < blocksInDay):
+                        File = File + str(SBU[users[I]][i][j]) + ","
+                        j += 1
+                    File = File[:-1] + "\n"
+                I += 1
+            i += 1
+        tmp = io.BytesIO(File[2:].encode("utf-8"))
+        tmp1 = discord.File(tmp, filename="schedule.csv")
+        await message.channel.send(file=tmp1)
+        tmp.close()
+        
+    @staticmethod
+    async def kill_me(paras, message):
+        await message.channel.send('You\'re already dead, ' +
+'and your next line is "Nani!?"')
+
+    @staticmethod
     async def clear_schedule(prams, message):
         # get user
         user = database.get_user(message.author.id)
@@ -602,6 +710,13 @@ def convert_time(time_):
 def is_time(time):
     return convert_time(time) is not None
 
+def to_time(Float):
+    #converts a float to a time (Ex: 1.25 to 1:15)
+    mins = (Float-int(Float))*60
+    if(mins > 0):
+        return str(int(Float)) + ":" + mins
+    else:
+        return str(int(Float))
 
 def process(schedule, user):
     days = ["sun", "mon", "tues", "wed", "thurs", "fri", "sat", "sunday",
