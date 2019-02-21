@@ -4,7 +4,10 @@ from texts import *
 import database
 import timezone
 import io
+from models import DAYS as days #*Days by FLOW starts playing*
 from random import shuffle, randint
+from random import shuffle, randint
+
 
 startup = True
 client = discord.Client()
@@ -19,6 +22,7 @@ rounding_warning = ("Keep in mind that your schedule will be trimmed if " +
                     " minute(s)")
 
 abc = "abcdefghijklmnopqrstuvwxyz".upper()
+
 pending_ballots = []
 votingIndicator = "channel"
 try:
@@ -59,7 +63,7 @@ class Commands:
                 tz = timezone.parse_timezone(params[0])
             except TypeError:
                 tz = False
-            if tz:
+            if type(tz) != bool:# check if it's a bool:
                 user = database.get_user(message.author.id)
                 if not user:
                     database.add_user(message.author.id, tz)
@@ -550,7 +554,7 @@ class ballot_commands:
         if(len(params) == 0):
             await send("'vote' requires 2 parameters, see 'help'")
             return
-        
+
 
     @staticmethod
     async def get_ballot(params, message):

@@ -17,6 +17,11 @@ def remove_tables():
         cursor.execute('DROP TABLE users')
     except (sqlite3.OperationalError, sqlite3.DatabaseError):
         pass
+    
+    try:
+        cursor.execute("DROP TABLE ballots")
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+        pass
 
 
 def create_tables():
@@ -35,6 +40,18 @@ def create_tables():
                             FOREIGN KEY(user_id) REFERENCES users(discord_id)
                     )""")
 
+    cursor.execute("""CREATE TABLE ballots (
+                            title    TEXT,
+                            id       TEXT,
+                            noun     TEXT,
+                            creator  TEXT,
+                            prompts  TEXT,
+                            options  TEXT,
+                            votes    TEXT,
+                            vote_log TEXT,
+                            open     INTEGER
+                    )""")#votes is the score for each option
+#voting_log is a list of all of the messages, this is useful for double checking
 
 def add_user(discord_id, timezone):
     try:
@@ -49,26 +66,18 @@ def add_user(discord_id, timezone):
 
 def add_interval(discord_id, start_day, end_day, start_hour, end_hour):
     block_size = config["interval_block_size"]/60
-    #size of increments to schedule in, if the block_size is 60minutes,
-    #   and one inputs "10:30 to 12:40", the interval becomes "11:00 to 12:00"
-    
-    numOfBlocks = start_hour//block_size #number of blocks that fit into start_hour
+    numOfBlocks = start_hour//block_size
     startHour = start_hour
     startDay = start_day
-    if(start_hour > (numOfBlocks*block_size)): #if start_hour doesn't fit
-        # into even block
+    if(start_hour > (numOfBlocks*block_size)):
         startHour = (numOfBlocks+1)*block_size
-        if(startHour >= 24): #if startHour went over to the next day
+        if(startHour >= 24):
             startDay += 1
             startHour -= 24
-            if(startDay > 6): #if startDay wrapped around end of the week
+            if(startDay > 6):
                 startDay = 0
-    numOfBlocks = end_hour//block_size #number of blocks that fit into end_hour
+    numOfBlocks = end_hour//block_size
     endHour = numOfBlocks*block_size
-    #setting endHour equal to the max that fits into blocks, this shaves
-    #   off the excess time(Ex: only 12 blocks of 60mins, fits into 12:30,
-    #   so the time would be equal to 12*60, or 12:00)
-    
     if((startHour != endHour) | (startDay != end_day)):
         try:
             cursor.execute('INSERT INTO intervals (user_id, start_day, end_day, start_hour, end_hour) '
@@ -125,10 +134,30 @@ def delete_interval(interval_id):
     except sqlite3.DatabaseError:
         return False
 
+def add_ballot(title, ID, noun, creator, prompts, options, votes):
+    
+    try:
+        cursor.execute('INSERT INTO ballots VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            (title, ID, noun, creator, prompts, options, votes, "", 1))
+        db.commit()
+        return 1
 
-def export_all_intervals():
-    #export all intervals as a list
-    return cursor.execute("SELECT * FROM intervals").fetchall()
+    except sqlite3.DatabaseError:
+        return 0
+
+
+def get_ballot(inp):
+    try: #if ID
+        int(inp)
+        tmp = cursor.execute("SELECT * FROM ballots WHERE id=?", (inp,)).fetchall()
+    except ValueError: #if noun
+        tmp = cursor.execute("SELECT * FROM ballots WHERE noun=?", (inp,)).fetchall()
+    
+    if(len(tmp) == 0):
+        return 0
+    else:
+        return tmp
+
 
 if __name__ == '__main__':
     remove_tables()
